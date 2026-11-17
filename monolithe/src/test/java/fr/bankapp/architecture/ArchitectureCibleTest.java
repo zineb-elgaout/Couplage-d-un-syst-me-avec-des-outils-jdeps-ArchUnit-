@@ -39,7 +39,7 @@ public class ArchitectureCibleTest {
             "fr/bankapp/risque/"
         );
 
-        assertEquals(List.of(),violations, "Accès aux tables de Risque hors de l'application Risque"); );
+        assertEquals(List.of(),violations, "Accès aux tables de Risque hors de l'application Risque"); 
     }
     @Test
     void mesure_cyclesEntreApplications() {
