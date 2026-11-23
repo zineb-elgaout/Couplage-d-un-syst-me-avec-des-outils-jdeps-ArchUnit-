@@ -1,10 +1,12 @@
 package fr.bankapp.risqueservice;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.math.BigDecimal;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
@@ -22,10 +24,42 @@ public class EvaluationHandler implements HttpHandler {
         this.moteur = moteur;
     }
 
+    private final ObjectMapper json = new ObjectMapper();
+
+
     @Override
     public void handle(HttpExchange echange) throws IOException {
-        // À COMPLÉTER À L'ÉTAPE 3 : lire les paramètres, appeler le moteur, répondre en JSON.
-        repondre(echange, 501, "{\"erreur\":\"NON_IMPLEMENTE\"}");
+        Map<String, String> p = parametres(echange);
+
+        try {
+            Evaluation evaluation = moteur.evaluer(
+                p.get("idClient"),
+                new BigDecimal(p.getOrDefault("montant", "0")),
+                Integer.parseInt(p.getOrDefault("dureeMois", "0"))
+            );
+
+            repondre(
+                echange,
+                200,
+                json.writeValueAsString(evaluation)
+            );
+
+        } catch (ErreurMetier e) {
+            int codeHttp = e.code().equals("CLIENT_INCONNU") ? 404 : 400;
+
+            repondre(
+                echange,
+                codeHttp,
+                "{\"erreur\":\"" + e.code() + "\"}"
+            );
+
+        } catch (NumberFormatException e) {
+            repondre(
+                echange,
+                400,
+                "{\"erreur\":\"MONTANT_INVALIDE\"}"
+            );
+        }
     }
 
     /** Lit les paramètres de l'URL : idClient=C001&montant=20000 devient une Map. */

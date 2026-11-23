@@ -12,6 +12,7 @@ import fr.bankapp.risque.RisqueService;
 
 import java.math.BigDecimal;
 import java.util.List;
+import fr.bankapp.integration.AiguillageRisque;
 
 /**
  * Point d'entrée de BankApp.
@@ -31,7 +32,7 @@ public class Main {
 
     static void journee() {
         System.out.println("=== Demandes de prêt ===");
-        PretService prets = new PretService();
+        PretService prets = new PretService(new AiguillageRisque());
         afficher("C001", prets.traiter(new Demande("C001", new BigDecimal("20000"), 24)));
         afficher("C002", prets.traiter(new Demande("C002", new BigDecimal("10000"), 12)));
 
@@ -51,7 +52,7 @@ public class Main {
     }
 
     static void guichet() throws InterruptedException {
-        PretService prets = new PretService();
+        PretService prets = new PretService(new AiguillageRisque());
         List<Demande> file = List.of(
                 new Demande("C001", new BigDecimal("20000"), 24),
                 new Demande("C006", new BigDecimal("50000"), 60),
