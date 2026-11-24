@@ -3,7 +3,6 @@ package fr.bankapp.mobile;
 import fr.bankapp.commun.BaseDeDonnees;
 import fr.bankapp.contrats.DecisionRisque;
 import fr.bankapp.contrats.ServiceRisque;
-import fr.bankapp.integration.RisqueLocal;
 
 import java.math.BigDecimal;
 
@@ -13,10 +12,6 @@ public class SimulationMobileService {
     static final BigDecimal TAUX_APPORT = new BigDecimal("0.10");
 
     private final ServiceRisque risque;
-
-    public SimulationMobileService() {
-        this(new RisqueLocal());
-    }
 
     public SimulationMobileService(ServiceRisque risque) {
         this.risque = risque;

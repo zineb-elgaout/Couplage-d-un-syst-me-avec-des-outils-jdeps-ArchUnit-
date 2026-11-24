@@ -4,7 +4,6 @@ import fr.bankapp.comptes.interne.CompteDAO;
 import fr.bankapp.contrats.DecisionRisque;
 import fr.bankapp.contrats.ServiceRisque;
 import fr.bankapp.crm.interne.ClientDAO;
-import fr.bankapp.integration.RisqueLocal;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -17,10 +16,6 @@ public class CampagneService {
 
     private final MessagerieService messagerie = new MessagerieService();
     private final ServiceRisque risque;
-
-    public CampagneService() {
-        this(new RisqueLocal());
-    }
 
     public CampagneService(ServiceRisque risque) {
         this.risque = risque;

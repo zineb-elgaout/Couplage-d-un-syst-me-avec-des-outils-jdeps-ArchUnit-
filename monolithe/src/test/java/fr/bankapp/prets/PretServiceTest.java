@@ -2,6 +2,7 @@ package fr.bankapp.prets;
 
 import fr.bankapp.commun.BaseDeDonnees;
 import fr.bankapp.commun.SortieConsole;
+import fr.bankapp.integration.RisqueLocal;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -18,7 +19,7 @@ class PretServiceTest {
     @BeforeEach
     void preparer() {
         BaseDeDonnees.initialiser();
-        service = new PretService();
+        service = new PretService(new RisqueLocal());
     }
 
     @Test

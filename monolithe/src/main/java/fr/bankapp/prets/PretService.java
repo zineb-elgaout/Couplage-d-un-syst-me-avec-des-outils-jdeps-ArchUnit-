@@ -5,7 +5,6 @@ import fr.bankapp.comptes.interne.CompteDAO;
 import fr.bankapp.contrats.EvaluationRisque;
 import fr.bankapp.contrats.ServiceRisque;
 import fr.bankapp.crm.interne.ClientDAO;
-import fr.bankapp.integration.RisqueLocal;
 import fr.bankapp.prets.interne.EcheanceDAO;
 import fr.bankapp.prets.interne.PretDAO;
 
@@ -16,10 +15,6 @@ public class PretService {
 
     static final BigDecimal TAUX_APPORT = new BigDecimal("0.10");
     private final ServiceRisque risque;
-
-    public PretService() {
-        this(new RisqueLocal());
-    }
 
     public PretService(ServiceRisque risque) {
         this.risque = risque;

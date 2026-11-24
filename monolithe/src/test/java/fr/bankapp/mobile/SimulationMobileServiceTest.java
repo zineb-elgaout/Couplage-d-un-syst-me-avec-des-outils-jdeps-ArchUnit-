@@ -1,6 +1,7 @@
 package fr.bankapp.mobile;
 
 import fr.bankapp.commun.BaseDeDonnees;
+import fr.bankapp.integration.RisqueLocal;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -12,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class SimulationMobileServiceTest {
 
-    private final SimulationMobileService service = new SimulationMobileService();
+    private final SimulationMobileService service = new SimulationMobileService(new RisqueLocal());
 
     @BeforeEach
     void preparer() {

@@ -1,46 +1,46 @@
 package fr.bankapp.integration;
 
-import fr.bankapp.contrats.ErreurRisque;
 import fr.bankapp.contrats.EvaluationRisque;
 import fr.bankapp.contrats.ServiceRisque;
 
 import java.io.IOException;
+import java.io.Reader;
 import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Locale;
 import java.util.Properties;
 
-/** Aiguille chaque évaluation vers la réalisation locale ou distante selon bascule.properties. */
+/**
+ * Patron Strangler Fig : à chaque appel, l'aiguillage lit bascule.properties et envoie la demande
+ * vers la réalisation locale (le monolithe) ou distante (le nouveau service).
+ * On bascule donc sans redémarrer, et on peut revenir en arrière à tout moment.
+ */
 public class AiguillageRisque implements ServiceRisque {
 
-    static final String CLE_BASCULE = "risque.realisation";
-
-    private final String cheminBascule;
     private final ServiceRisque local = new RisqueLocal();
     private final ServiceRisque distant = new RisqueDistant();
 
-    public AiguillageRisque() {
-        this(System.getProperty("bankapp.bascule", "bascule.properties"));
-    }
-
-    public AiguillageRisque(String cheminBascule) {
-        this.cheminBascule = cheminBascule;
-    }
-
     @Override
     public EvaluationRisque evaluerRisque(String idClient, BigDecimal montant, int dureeMois) {
-        Properties config = new Properties();
-        try (var lecture = Files.newBufferedReader(Path.of(cheminBascule))) {
-            config.load(lecture);
-        } catch (IOException e) {
-            throw new ErreurRisque("BASCULE_INDISPONIBLE", cheminBascule);
+        String realisation = realisationChoisie();
+        long debut = System.nanoTime();
+        try {
+            return (realisation.equals("distant") ? distant : local).evaluerRisque(idClient, montant, dureeMois);
+        } finally {
+            double millisecondes = (System.nanoTime() - debut) / 1_000_000.0;
+            System.out.printf(Locale.FRANCE, "[Risque %s] %s évalué en %.2f ms%n", realisation, idClient, millisecondes);
         }
+    }
 
-        String realisation = config.getProperty(CLE_BASCULE, "local").trim();
-        return switch (realisation) {
-            case "local" -> local.evaluerRisque(idClient, montant, dureeMois);
-            case "distant" -> distant.evaluerRisque(idClient, montant, dureeMois);
-            default -> throw new ErreurRisque("REALISATION_INCONNUE", realisation);
-        };
+    static String realisationChoisie() {
+        Path fichier = Path.of(System.getProperty("bankapp.bascule", "bascule.properties"));
+        Properties bascule = new Properties();
+        try (Reader lecture = Files.newBufferedReader(fichier)) {
+            bascule.load(lecture);
+        } catch (IOException e) {
+            return "local";
+        }
+        return bascule.getProperty("risque.realisation", "local").trim();
     }
 }
